@@ -1,3 +1,9 @@
+"use client";
+
+import { useState } from "react";
+import { ReferralCard } from "@/components/dashboard/referral-card";
+import { ReferralRewards } from "@/components/dashboard/referral-rewards";
+
 export default function SettingsPage() {
   return (
     <div>
@@ -51,6 +57,12 @@ export default function SettingsPage() {
               Manage Plan
             </button>
           </div>
+        </div>
+
+        {/* Referral Section */}
+        <div className="space-y-6">
+          <ReferralCard />
+          <ReferralRewards />
         </div>
 
         {/* Connected Accounts */}

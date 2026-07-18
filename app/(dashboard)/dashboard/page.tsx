@@ -1,3 +1,7 @@
+import { WeeklyShareCard } from "@/components/dashboard/weekly-share-card";
+import { ReferralCard } from "@/components/dashboard/referral-card";
+import { ReferralRewards } from "@/components/dashboard/referral-rewards";
+
 export default function DashboardPage() {
   return (
     <div>
@@ -6,6 +10,11 @@ export default function DashboardPage() {
         <p className="text-muted-foreground mt-1">
           Welcome back! Here&apos;s your financial overview.
         </p>
+      </div>
+
+      {/* Weekly Share Nudge */}
+      <div className="mb-6">
+        <WeeklyShareCard />
       </div>
 
       {/* Stats */}
@@ -24,7 +33,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Placeholder: Charts & Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 mb-8">
         <div className="rounded-lg border bg-card p-6">
           <h2 className="font-semibold mb-4">Monthly Savings</h2>
           <div className="h-64 flex items-center justify-center text-muted-foreground text-sm border rounded-md">
@@ -45,6 +54,12 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Referral Section */}
+      <div className="grid gap-6 lg:grid-cols-2 mb-8">
+        <ReferralCard />
+        <ReferralRewards />
       </div>
     </div>
   );
