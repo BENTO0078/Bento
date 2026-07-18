@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const REFERRAL_STORAGE_KEY = "bento-referral-code";
 
 const signupSchema = z
   .object({
@@ -48,6 +50,34 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  // Check localStorage for referral code on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(REFERRAL_STORAGE_KEY);
+      if (stored && stored.trim().length > 0) {
+        setReferralCode(stored.trim().toUpperCase());
+      }
+    } catch {
+      // localStorage may be unavailable
+    }
+  }, []);
+
+  const applyReferral = async () => {
+    if (!referralCode) return;
+    try {
+      await fetch("/api/referral/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ referralCode }),
+      });
+      // Clear referral from storage after applying
+      localStorage.removeItem(REFERRAL_STORAGE_KEY);
+    } catch {
+      // Non-blocking — referral may be applied later
+    }
+  };
 
   const {
     register,
@@ -98,6 +128,18 @@ export default function SignupPage() {
       }
       return;
     }
+
+    // Attempt to apply referral code after signup
+    await applyReferral();
+
+    // Trigger welcome email (fire-and-forget — won't block the flow)
+    fetch("/api/email/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: data.fullName }),
+    }).catch(() => {
+      // Silently ignore — email failures should never break signup
+    });
 
     setIsSuccess(true);
     setIsLoading(false);
@@ -212,6 +254,16 @@ export default function SignupPage() {
           <div className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{serverError}</p>
+          </div>
+        )}
+
+        {/* Referral banner */}
+        {referralCode && (
+          <div className="flex items-start gap-2 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-3 text-sm">
+            <Gift className="mt-0.5 h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <p className="text-emerald-700 dark:text-emerald-300">
+              🎉 You&apos;ve been referred! Get your <span className="font-semibold">first month free</span> when you subscribe.
+            </p>
           </div>
         )}
 
