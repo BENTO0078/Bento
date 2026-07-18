@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { sendOnboardingCompleteEmail } from "@/lib/services/email-service";
 
 type FindingInput = {
   id: string;
@@ -235,6 +236,17 @@ export async function POST(request: Request) {
       },
       completed_at: now,
     });
+
+    // Send onboarding complete email (fire-and-forget)
+    if (user.email) {
+      const fullName =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        "there";
+      sendOnboardingCompleteEmail(user.email, fullName, totalSavingsCents).catch(
+        (err) => console.error("Onboarding complete email failed:", err)
+      );
+    }
 
     return NextResponse.json({
       success: true,
