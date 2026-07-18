@@ -8,6 +8,11 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    // Disable filesystem cache to save disk space in constrained environments
+    config.cache = false;
+    return config;
+  },
 };
 
 module.exports = nextConfig;

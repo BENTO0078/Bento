@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SavingsScoreBadge } from "@/components/shared/savings-score-badge";
+import { ShareCard } from "@/components/shared/share-card";
 import { createClient } from "@/lib/supabase/client";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
@@ -17,7 +18,7 @@ import {
   DollarSign,
   Sparkles,
   Loader2,
-  CheckCircle2,
+  Share2,
 } from "lucide-react";
 
 // ---- Demo Findings ----
@@ -129,17 +130,14 @@ const DEMO_FINDINGS: DemoFinding[] = [
   },
 ];
 
-interface StepResultsProps {
-  onManualContinue: () => void;
-}
-
-export function StepResults({ onManualContinue }: StepResultsProps) {
+export function StepResults() {
   const router = useRouter();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [isManualLoading, setIsManualLoading] = useState(false);
   const [badgeVisible, setBadgeVisible] = useState(false);
   const [achievementVisible, setAchievementVisible] = useState(false);
   const [findingsVisible, setFindingsVisible] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const totalSavings = useMemo(
     () => DEMO_FINDINGS.reduce((sum, f) => sum + f.savingsCents, 0),
@@ -203,25 +201,6 @@ export function StepResults({ onManualContinue }: StepResultsProps) {
     } catch (error) {
       console.error("Failed to complete onboarding:", error);
       setIsManualLoading(false);
-    }
-  };
-
-  const getCategoryColor = (cat: string) => {
-    switch (cat) {
-      case "Entertainment":
-        return "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300";
-      case "Utilities":
-        return "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300";
-      case "Shopping":
-        return "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300";
-      case "Fitness":
-        return "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300";
-      case "Insurance":
-        return "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300";
-      case "Warranty":
-        return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300";
-      default:
-        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -438,8 +417,31 @@ export function StepResults({ onManualContinue }: StepResultsProps) {
               Free 30-day trial. Cancel anytime. Instant results after upgrade.
             </span>
           </div>
+
+          {/* Share your score */}
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto gap-2 font-medium"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 className="h-4 w-4" />
+              Share Your Savings Score
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Share Card Modal */}
+      <ShareCard
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        savingsScore={savingsScore}
+        totalFound={totalSavings / 100}
+        rank={Math.floor(Math.random() * 5000) + 500}
+        totalUsers={50000}
+      />
     </div>
   );
 }

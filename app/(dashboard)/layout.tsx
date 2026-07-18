@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/dashboard/user-menu";
+import { DashboardShareButton } from "@/components/dashboard/share-button";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -153,7 +154,8 @@ export default function DashboardLayout({
           </Link>
 
           {/* User menu */}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <DashboardShareButton />
             <UserMenu />
           </div>
         </header>

@@ -18,7 +18,6 @@ import {
   Settings,
   CreditCard,
   LogOut,
-  User,
   ChevronDown,
 } from "lucide-react";
 

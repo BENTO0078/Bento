@@ -53,7 +53,6 @@ export default function SignupPage() {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),

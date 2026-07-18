@@ -51,10 +51,6 @@ export function OnboardingWizard() {
     setCurrentStep(3);
   }, []);
 
-  const handleManualContinue = useCallback(async () => {
-    // This is handled inside StepResults
-  }, []);
-
   if (!mounted) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
@@ -143,7 +139,7 @@ export function OnboardingWizard() {
         {currentStep === 1 && <StepWelcome onStart={handleStartScan} />}
         {currentStep === 2 && <StepScanning onComplete={handleScanComplete} />}
         {currentStep === 3 && (
-          <StepResults onManualContinue={() => router.push("/dashboard")} />
+          <StepResults />
         )}
       </div>
     </div>

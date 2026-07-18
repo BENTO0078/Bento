@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Trophy, TrendingUp, Star, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -37,6 +38,144 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground pt-2">
             No credit card required &middot; 30-day free trial
           </p>
+
+          {/* Social Proof Row */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 pt-6">
+            {/* Avatar cluster */}
+            <div className="flex -space-x-3">
+              {["#059669", "#0284c7", "#7c3aed", "#db2777", "#d97706"].map(
+                (color, i) => (
+                  <div
+                    key={i}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-[11px] font-bold text-white shadow-sm"
+                    style={{ backgroundColor: color }}
+                  >
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                )
+              )}
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-bold text-muted-foreground shadow-sm">
+                +50K
+              </div>
+            </div>
+            <div className="text-center sm:text-left">
+              <p className="text-sm font-medium">
+                Join{" "}
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                  50,000+
+                </span>{" "}
+                savers
+              </p>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <span className="ml-1">4.9/5 from 2,300+ reviews</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof Banner */}
+      <section className="py-8 border-y bg-emerald-50/50 dark:bg-emerald-950/10">
+        <div className="container">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-center">
+            <div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                $2.4M+
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Saved by Bento users this year
+              </div>
+            </div>
+            <div className="hidden sm:block h-10 w-px bg-border" />
+            <div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                50,000+
+              </div>
+              <div className="text-sm text-muted-foreground">Active savers</div>
+            </div>
+            <div className="hidden sm:block h-10 w-px bg-border" />
+            <div>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                $1,200
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Average annual savings per user
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leaderboard Teaser */}
+      <section className="py-16 bg-muted/30">
+        <div className="container">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+            <div className="flex-1 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground mb-4">
+                <Trophy className="h-3.5 w-3.5 text-amber-500" />
+                Savings Leaderboard
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
+                See how you stack up against other savers
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Every dollar saved increases your Savings Score. Climb the
+                leaderboard, earn achievements, and show off your frugality.
+                Top savers this month are saving $3,000+.
+              </p>
+              <Link
+                href="/leaderboard"
+                className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                View the leaderboard
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="flex-1 w-full max-w-md">
+              <div className="rounded-xl border bg-card p-5 space-y-3">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-amber-500" />
+                  Top Savers This Month
+                </h4>
+                {[
+                  { rank: 1, score: 947, saved: "$3,247" },
+                  { rank: 2, score: 932, saved: "$2,980" },
+                  { rank: 3, score: 918, saved: "$2,745" },
+                  { rank: 4, score: 901, saved: "$2,510" },
+                  { rank: 5, score: 887, saved: "$2,390" },
+                ].map((s) => (
+                  <div
+                    key={s.rank}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-muted-foreground w-5">
+                        {s.rank <= 3
+                          ? ["🥇", "🥈", "🥉"][s.rank - 1]
+                          : `#${s.rank}`}
+                      </span>
+                      <span className="font-medium">{s.score}</span>
+                      <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                    </div>
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      {s.saved}
+                    </span>
+                  </div>
+                ))}
+                <Link
+                  href="/leaderboard"
+                  className="block text-center text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline pt-1"
+                >
+                  View full leaderboard →
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

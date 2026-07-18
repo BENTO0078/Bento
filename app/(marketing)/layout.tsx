@@ -31,6 +31,18 @@ export default function MarketingLayout({
             >
               Pricing
             </Link>
+            <Link
+              href="/blog"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Leaderboard
+            </Link>
           </nav>
           <div className="flex items-center gap-4">
             <Link
