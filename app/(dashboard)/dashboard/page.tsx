@@ -1,66 +1,128 @@
-export default function DashboardPage() {
+import { Suspense } from "react";
+import { DashboardStats } from "@/components/dashboard/stats-cards";
+import { SavingsFeed } from "@/components/dashboard/savings-feed";
+import { QuickActions } from "@/components/dashboard/quick-actions";
+import { AchievementsRow } from "@/components/dashboard/achievements-row";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Trophy, ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+function StatsSkeleton() {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">
-          Welcome back! Here&apos;s your financial overview.
-        </p>
-      </div>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="rounded-lg border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-8 rounded-md" />
+          </div>
+          <Skeleton className="mt-3 h-8 w-16" />
+          <Skeleton className="mt-1.5 h-3 w-32" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.name}
-            className="rounded-lg border bg-card p-6"
-          >
-            <div className="text-sm font-medium text-muted-foreground">
-              {stat.name}
+function FeedSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="rounded-lg border bg-card p-4 animate-pulse">
+          <div className="flex gap-4">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/4" />
             </div>
-            <div className="mt-2 text-3xl font-bold">{stat.value}</div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-      {/* Placeholder: Charts & Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border bg-card p-6">
-          <h2 className="font-semibold mb-4">Monthly Savings</h2>
-          <div className="h-64 flex items-center justify-center text-muted-foreground text-sm border rounded-md">
-            Savings chart coming soon
+function LeaderboardTeaser() {
+  // Randomize slightly for visual appeal
+  const rank = Math.floor(Math.random() * 5000) + 500;
+  const total = 50000;
+
+  return (
+    <div className="rounded-lg border bg-card p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/20">
+            <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium">
+              You rank{" "}
+              <span className="font-bold text-amber-600 dark:text-amber-400">
+                #{rank.toLocaleString()}
+              </span>{" "}
+              out of{" "}
+              <span className="font-medium">{total.toLocaleString()}</span>{" "}
+              savers
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Keep saving to climb the leaderboard this month!
+            </p>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6">
-          <h2 className="font-semibold mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {activities.map((activity, i) => (
-              <div key={i} className="flex items-start gap-3 text-sm">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                <div>
-                  <p className="font-medium">{activity.title}</p>
-                  <p className="text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Link
+          href="/dashboard/leaderboard"
+          className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex-shrink-0"
+        >
+          View Full Leaderboard
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      {/* Mini progress bar */}
+      <div className="mt-3 h-1.5 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400"
+          style={{ width: `${Math.max(5, ((total - rank) / total) * 100)}%` }}
+        />
       </div>
     </div>
   );
 }
 
-const stats = [
-  { name: "Total Saved", value: "$1,247" },
-  { name: "Active Subs", value: "12" },
-  { name: "Bills Tracked", value: "8" },
-  { name: "Pending Refunds", value: "$143" },
-];
+export default async function DashboardPage() {
+  return (
+    <div className="space-y-8">
+      {/* Upgrade Banner (free users only) */}
+      <UpgradeBanner />
 
-const activities = [
-  { title: "Negotiated internet bill — saved $20/month", time: "2 hours ago" },
-  { title: "Canceled unused streaming subscription", time: "Yesterday" },
-  { title: "Filed price adjustment refund — $34.99", time: "2 days ago" },
-  { title: "Warranty expiring soon: MacBook Pro", time: "3 days ago" },
-  { title: "Tax document organized: W-2 received", time: "1 week ago" },
-];
+      {/* Stats Row */}
+      <Suspense fallback={<StatsSkeleton />}>
+        <DashboardStats />
+      </Suspense>
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Main Content: Savings Feed + Leaderboard */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Savings Feed */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-tight">
+              Savings Feed
+            </h2>
+          </div>
+          <Suspense fallback={<FeedSkeleton />}>
+            <SavingsFeed />
+          </Suspense>
+        </div>
+
+        {/* Sidebar: Leaderboard + Achievements */}
+        <div className="space-y-4">
+          <LeaderboardTeaser />
+          <AchievementsRow />
+        </div>
+      </div>
+    </div>
+  );
+}
