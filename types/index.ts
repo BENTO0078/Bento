@@ -143,6 +143,7 @@ export interface Profile {
   referral_code: string | null;
   referred_by: string | null;
   total_savings: number;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 }
