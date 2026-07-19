@@ -1,16 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScanModal } from "@/components/dashboard/scan-modal";
-import { Search, Share2, UserPlus } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Search, Share2, UserPlus, Copy, Check } from "lucide-react";
+import Link from "next/link";
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://5d3bdd37f115ebfeaef09173b6dff7f4.ctonew.app";
 
 export function QuickActions() {
   const [scanOpen, setScanOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const handleShareScore = () => {
-    // Placeholder: share functionality
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user?.email) {
+          setUserEmail(user.email);
+        }
+      } catch {
+        // Not logged in or error — leave as null
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleShareScore = useCallback(() => {
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator
         .share({
@@ -22,7 +46,6 @@ export function QuickActions() {
           // User cancelled or share not available
         });
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard
         .writeText(
           "Check out my Bento Savings Score! I'm finding money while I sleep. " +
@@ -30,28 +53,22 @@ export function QuickActions() {
         )
         .catch(() => {});
     }
-  };
+  }, []);
 
-  const handleInviteFriend = () => {
-    // Placeholder: invite functionality
-    if (typeof navigator !== "undefined" && navigator.share) {
-      navigator
-        .share({
-          title: "Join Bento with me",
-          text: "Join Bento and start finding hidden savings. It works while you sleep!",
-          url: window.location.origin + "/signup",
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard
-        .writeText(
-          "Join Bento and start finding hidden savings: " +
-            window.location.origin +
-            "/signup"
-        )
-        .catch(() => {});
+  const handleReferFriend = useCallback(async () => {
+    const referralLink = userEmail
+      ? `${APP_URL}/referral?ref=${encodeURIComponent(userEmail)}`
+      : `${APP_URL}/referral`;
+
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback: open referral page
+      window.open(`${APP_URL}/referral`, "_blank");
     }
-  };
+  }, [userEmail]);
 
   return (
     <>
@@ -112,9 +129,11 @@ export function QuickActions() {
                 <UserPlus className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Invite a Friend</p>
+                <p className="text-sm font-medium">Refer a Friend</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Earn rewards for referrals
+                  {userEmail
+                    ? "Copy your unique referral link"
+                    : "Earn rewards for referrals"}
                 </p>
               </div>
             </div>
@@ -122,11 +141,26 @@ export function QuickActions() {
               variant="outline"
               className="w-full mt-3"
               size="sm"
-              onClick={handleInviteFriend}
+              onClick={handleReferFriend}
             >
-              <UserPlus className="mr-1.5 h-4 w-4" />
-              Invite
+              {copied ? (
+                <>
+                  <Check className="mr-1.5 h-4 w-4 text-emerald-500" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-1.5 h-4 w-4" />
+                  Copy Referral Link
+                </>
+              )}
             </Button>
+            <Link
+              href="/referral"
+              className="block text-center text-xs text-violet-600 dark:text-violet-400 hover:underline mt-2"
+            >
+              View referral leaderboard →
+            </Link>
           </CardContent>
         </Card>
       </div>

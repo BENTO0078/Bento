@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import {
   ArrowRight,
   ArrowLeft,
@@ -13,6 +15,9 @@ import {
   Copy,
   Sparkles,
   TrendingUp,
+  Download,
+  Mail,
+  Loader2,
 } from "lucide-react";
 
 /** Inline Twitter/X icon — not available in this version of lucide-react */
@@ -113,7 +118,6 @@ const SUBSCRIPTION_BOX_OPTIONS = [
 function estimateSavings(answers: Answers): CategoryEstimate[] {
   const categories: CategoryEstimate[] = [];
 
-  // 1. Streaming services — estimate 30% of what you pay is "waste" (forgotten subs, price hikes)
   const streamingTotal = answers.streaming.reduce((sum, id) => {
     const opt = STREAMING_OPTIONS.find((o) => o.id === id);
     return sum + (opt?.avgMonthly ?? 0);
@@ -124,7 +128,6 @@ function estimateSavings(answers: Answers): CategoryEstimate[] {
     color: "bg-red-500",
   });
 
-  // 2. Internet bill — average negotiation saves ~$15–25/month
   if (answers.internetBill) {
     const potentialSavings =
       answers.internetBill >= 70
@@ -139,7 +142,6 @@ function estimateSavings(answers: Answers): CategoryEstimate[] {
     });
   }
 
-  // 3. Monthly purchases — refund opportunities for ~3% of purchases at ~$40 avg order
   if (answers.monthlyPurchases) {
     const annualRefundLoss = Math.round(
       answers.monthlyPurchases * 12 * 40 * 0.03
@@ -151,7 +153,6 @@ function estimateSavings(answers: Answers): CategoryEstimate[] {
     });
   }
 
-  // 4. Warranty items — missed warranty claims ~$50/year per item that should be covered
   if (answers.warrantyItems) {
     categories.push({
       label: "Missed Warranty Claims",
@@ -160,7 +161,6 @@ function estimateSavings(answers: Answers): CategoryEstimate[] {
     });
   }
 
-  // 5. Subscription boxes — estimate 50% of boxes go underused
   const boxTotal = answers.subscriptionBoxes.reduce((sum, id) => {
     const opt = SUBSCRIPTION_BOX_OPTIONS.find((o) => o.id === id);
     return sum + (opt?.avgMonthly ?? 0);
@@ -212,67 +212,338 @@ function AnimatedCounter({
   return <>{value.toLocaleString()}</>;
 }
 
-// ─── Share Buttons ───────────────────────────────────────────────────────────
+// ─── Share Card (image generation) ───────────────────────────────────────────
 
-function ShareButtons({ total }: { total: number }) {
+const CALCULATOR_URL = "https://5d3bdd37f115ebfeaef09173b6dff7f4.ctonew.app/calculator";
+
+function ShareCardSection({ total }: { total: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const shareText = encodeURIComponent(
-    `I'm losing $${total.toLocaleString()}/year on forgotten subscriptions, overpriced bills, and unclaimed refunds. 😱\n\nBento found it in 30 seconds — check your number:`
-  );
-  const shareUrl = encodeURIComponent("https://getbento.ai/calculator");
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
-  const redditUrl = `https://www.reddit.com/submit?url=${shareUrl}&title=${encodeURIComponent(`I'm losing $${total.toLocaleString()}/year — Bento calculator`)}`;
-
-  const handleCopy = useCallback(async () => {
+  const handleDownload = useCallback(async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
     try {
-      await navigator.clipboard.writeText(
-        `https://getbento.ai/calculator`
-      );
+      const dataUrl = await toPng(cardRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: "#0f0f0f",
+      });
+      const link = document.createElement("a");
+      link.download = "bento-leak-score.png";
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Failed to download image:", err);
+    } finally {
+      setDownloading(false);
+    }
+  }, []);
+
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(CALCULATOR_URL);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // fallback
       setCopied(false);
     }
   }, []);
 
+  const handleTwitterShare = useCallback(() => {
+    const text = encodeURIComponent(
+      `I'm losing $${total.toLocaleString()}/year on forgotten subscriptions, overpriced bills & missed refunds. 😱\n\nBento found it in 30 seconds — find your leak score:`
+    );
+    const url = encodeURIComponent(CALCULATOR_URL);
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      "_blank"
+    );
+  }, [total]);
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-      <a
-        href={twitterUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-md bg-[#1DA1F2] px-4 py-2 text-sm font-medium text-white hover:bg-[#1a8cd8] transition-colors"
+    <div className="mt-12 pt-10 border-t">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium text-muted-foreground mb-3">
+          <Share2 className="h-4 w-4 text-emerald-500" />
+          Share Your Leak Score
+        </div>
+        <h3 className="text-xl font-bold mb-1">Make your friends check theirs</h3>
+        <p className="text-sm text-muted-foreground">
+          Download the card or share it directly — every share helps someone find
+          their leaks.
+        </p>
+      </div>
+
+      {/* The shareable card (rendered for html-to-image capture) */}
+      <div
+        ref={cardRef}
+        className="relative overflow-hidden rounded-2xl mx-auto max-w-[480px]"
+        style={{
+          background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0d1117 100%)",
+          padding: "32px 28px 24px",
+          border: "1px solid rgba(16, 185, 129, 0.2)",
+        }}
       >
-        <TwitterIcon className="h-4 w-4" />
-        Share on X
-      </a>
-      <a
-        href={redditUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-md bg-[#FF4500] px-4 py-2 text-sm font-medium text-white hover:bg-[#e03e00] transition-colors"
-      >
-        <Share2 className="h-4 w-4" />
-        Reddit
-      </a>
-      <button
-        onClick={handleCopy}
-        className="inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
-      >
-        {copied ? (
-          <>
-            <Check className="h-4 w-4 text-emerald-600" />
-            Copied!
-          </>
-        ) : (
-          <>
-            <Copy className="h-4 w-4" />
-            Copy Link
-          </>
+        {/* Glow accents */}
+        <div
+          className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+          style={{ background: "rgba(16, 185, 129, 0.08)" }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+          style={{ background: "rgba(239, 68, 68, 0.06)" }}
+        />
+
+        <div className="relative z-10">
+          {/* Header row */}
+          <div className="flex items-center gap-2.5 mb-8">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-sm text-white flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
+            >
+              B
+            </div>
+            <span className="font-bold text-lg text-white tracking-tight">
+              Bento
+            </span>
+            <span
+              className="ml-auto text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0"
+              style={{
+                background: "rgba(239, 68, 68, 0.15)",
+                color: "#f87171",
+              }}
+            >
+              LEAK ALERT
+            </span>
+          </div>
+
+          {/* Big number */}
+          <div className="text-center mb-5">
+            <p
+              className="text-[11px] uppercase tracking-[0.2em] font-semibold mb-3"
+              style={{ color: "rgba(255,255,255,0.45)" }}
+            >
+              Annual Money Leak
+            </p>
+            <div
+              className="text-7xl font-black tracking-tight"
+              style={{
+                background: "linear-gradient(135deg, #f87171, #ef4444, #f97316)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              ${total.toLocaleString()}
+            </div>
+            <p
+              className="text-base font-medium mt-1"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              per year
+            </p>
+          </div>
+
+          {/* Description */}
+          <p
+            className="text-sm text-center leading-relaxed mb-5 px-2"
+            style={{ color: "rgba(255,255,255,0.65)" }}
+          >
+            That&apos;s how much I&apos;m losing in forgotten subscriptions,
+            overpriced bills &amp; missed refunds.
+          </p>
+
+          {/* CTA line */}
+          <div
+            className="text-center rounded-xl py-3 px-4"
+            style={{ background: "rgba(16, 185, 129, 0.08)" }}
+          >
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "#34d399" }}
+            >
+              Find your leak score →
+            </p>
+            <p
+              className="text-[10px] mt-0.5"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            >
+              {CALCULATOR_URL.replace("https://", "")}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 transition-colors disabled:opacity-60"
+        >
+          {downloading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Download Image
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={handleTwitterShare}
+          className="inline-flex items-center gap-2 rounded-md bg-[#1DA1F2] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1a8cd8] transition-colors"
+        >
+          <TwitterIcon className="h-4 w-4" />
+          Share on X
+        </button>
+
+        <button
+          onClick={handleCopyLink}
+          className="inline-flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check className="h-4 w-4 text-emerald-600" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" />
+              Copy Link
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Email Capture ───────────────────────────────────────────────────────────
+
+function EmailCapture({ total }: { total: number }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!email.trim()) return;
+
+      setStatus("loading");
+      setErrorMsg("");
+
+      try {
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setStatus("success");
+        } else {
+          setStatus("error");
+          setErrorMsg(data.error || "Something went wrong");
+        }
+      } catch {
+        setStatus("error");
+        setErrorMsg("Network error. Please try again.");
+      }
+    },
+    [email]
+  );
+
+  if (status === "success") {
+    return (
+      <div className="mt-10 pt-10 border-t">
+        <div className="max-w-md mx-auto text-center rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 p-6 sm:p-8">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4">
+            <Check className="h-6 w-6 text-emerald-600" />
+          </div>
+          <h3 className="text-lg font-bold mb-2">You&apos;re on the list!</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            We&apos;ll send you a detailed breakdown soon. In the meantime, grab
+            lifetime access before spots fill up.
+          </p>
+          <Link
+            href="/lifetime"
+            className="inline-flex items-center gap-2 rounded-md bg-amber-500 px-6 py-3 text-sm font-bold text-white shadow-lg hover:bg-amber-600 transition-all"
+          >
+            <Sparkles className="h-4 w-4" />
+            Get Lifetime Access — $199
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <p className="text-xs text-muted-foreground mt-3">
+            Only 50 lifetime spots · 30-day money-back guarantee
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-10 pt-10 border-t">
+      <div className="max-w-md mx-auto text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium text-muted-foreground mb-3">
+          <Mail className="h-4 w-4 text-emerald-500" />
+          Free Audit
+        </div>
+        <h3 className="text-xl font-bold mb-2">
+          Want us to do a full audit?
+        </h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Enter your email and we&apos;ll send you a detailed breakdown of where
+          your ${total.toLocaleString()}/year is going — plus exactly how to plug
+          every leak.
+        </p>
+
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+          <Input
+            type="email"
+            placeholder="you@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="flex-1 h-11"
+            disabled={status === "loading"}
+          />
+          <Button
+            type="submit"
+            disabled={status === "loading" || !email.trim()}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 px-6"
+          >
+            {status === "loading" ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4 mr-2" />
+                Send My Audit
+              </>
+            )}
+          </Button>
+        </form>
+
+        {status === "error" && (
+          <p className="text-sm text-red-500 mt-3">{errorMsg}</p>
         )}
-      </button>
+
+        <p className="text-xs text-muted-foreground mt-3">
+          No spam, ever. Just your audit and product updates.
+        </p>
+      </div>
     </div>
   );
 }
@@ -430,8 +701,11 @@ export default function Calculator() {
             </p>
           </div>
 
-          {/* Share buttons */}
-          <ShareButtons total={totalAnnualLoss} />
+          {/* Share Card Section */}
+          <ShareCardSection total={totalAnnualLoss} />
+
+          {/* Email Capture */}
+          <EmailCapture total={totalAnnualLoss} />
 
           {/* Retake */}
           <button
@@ -446,7 +720,7 @@ export default function Calculator() {
                 subscriptionBoxes: [],
               });
             }}
-            className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            className="mt-10 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
           >
             Retake the quiz
           </button>
