@@ -17,27 +17,27 @@ import FlashSaleCountdown from "@/components/marketing/flash-sale-countdown";
 import SoldCounter from "@/components/marketing/sold-counter";
 
 export const metadata: Metadata = {
-  title: "Get Bento Lifetime Access — $99 Flash Sale",
+  title: "Get Bento Lifetime — $29 Today Only (35 Spots)",
   description:
-    "24-hour flash sale: Pay once, keep Bento for life. Unlimited subscription tracking, automatic bill negotiation, refund filing, warranty tracking, credit monitoring, and all future features — only $99 today.",
+  "Today-only flash sale: first 35 buyers get lifetime access for $29. Double-your-money-back guarantee: if Bento doesn't save you $500, get $58 back. Unlimited subscription tracking, automatic bill negotiation, refund filing, warranty tracking.",
   openGraph: {
-    title: "Get Bento Lifetime Access — $99 Flash Sale",
-    description:
-      "24-hour flash sale: Pay once, keep Bento for life. Unlimited subscription tracking, automatic bill negotiation, refund filing, warranty tracking, credit monitoring, and all future features included. Normally $199.",
-    url: "https://bento.app/lifetime",
-    siteName: "Bento",
-    locale: "en_US",
-    type: "website",
+  title: "Get Bento Lifetime — $29 Today Only",
+  description:
+    "Today-only flash sale: lifetime access for $29. Only 35 spots. Double-your-money-back guarantee. Unlimited features, all future updates. Normally $228/year.",
+  url: "https://bento.app/lifetime",
+  siteName: "Bento",
+  locale: "en_US",
+  type: "website",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Get Bento Lifetime Access — $99 Flash Sale",
-    description:
-      "24-hour flash sale: Pay once, keep Bento for life. All features, all future updates. No recurring fees, ever.",
+  card: "summary_large_image",
+  title: "Get Bento Lifetime — $29 Today Only",
+  description:
+    "Today-only: lifetime access for $29 with double-your-money-back guarantee. Only 35 spots. All features, all future updates.",
   },
 };
 
-const STRIPE_LINK = "https://buy.stripe.com/6oU6G8vcfBgbEO1eq1ZS06";
+const STRIPE_LINK = "https://buy.stripe.com/28E4gyfXEexc4cm4qC1ZS08";
 
 const features = [
   {
@@ -85,7 +85,7 @@ const features = [
   {
     title: "No Recurring Fees, Ever",
     description:
-      "Pay $99 once and you're done. No monthly charges, no annual renewals, no surprise price hikes. Bento works for you forever.",
+      "Pay $29 once and you're done. No monthly charges, no annual renewals, no surprise price hikes. Bento works for you forever.",
     icon: <Gift className="h-5 w-5" />,
   },
 ];
@@ -115,7 +115,7 @@ const faqs = [
   {
     question: "Is this really a lifetime deal?",
     answer:
-      "Yes — one payment of $99 gives you lifetime access to Bento's Consumer plan. No monthly fees, no annual charges, no expiration. As long as Bento exists, your account stays active with full access.",
+      "Yes — one payment of $29 gives you lifetime access to Bento's Consumer plan. No monthly fees, no annual charges, no expiration. As long as Bento exists, your account stays active with full access.",
   },
   {
     question: "What if Bento shuts down?",
@@ -148,9 +148,9 @@ const faqs = [
       "You'll receive an email with a link to create your Bento account. Once you're in, connect your accounts and Bento starts scanning immediately. Most users see their first savings within 48 hours.",
   },
   {
-    question: "How does the 30-day money-back guarantee work?",
+    question: "How does the money-back guarantee work?",
     answer:
-      "If Bento doesn't save you at least $99 in your first year, we'll refund every penny. But we're confident you'll save that in your first month. Just email support@bento.app within 30 days of purchase — no questions asked.",
+      "If Bento doesn't save you at least $500 in your first year, we'll refund you $58 — double your money back. No risk. Just email support@bento.app within 12 months of purchase.",
   },
 ];
 
@@ -168,7 +168,7 @@ export default function LifetimePage() {
       <div className="bg-amber-50 dark:bg-amber-950/20 border-b border-amber-200 dark:border-amber-800">
         <div className="container py-2.5 text-center">
           <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-            ⚡ Flash Sale: $99 lifetime access. Price returns to $199 in 24 hours.
+            ⚡ Flash Sale: $29 lifetime access. First 35 buyers only. Today only.
           </p>
         </div>
       </div>
@@ -191,19 +191,19 @@ export default function LifetimePage() {
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-4">
               Get Bento Forever
               <br />
-              <span className="text-primary">Only $99 Today</span>
+              <span className="text-primary">Only $29 Today</span>
             </h1>
 
             <p className="text-lg text-muted-foreground md:text-xl mb-2">
-              <span className="line-through text-muted-foreground/60">$199</span>{" "}
+              <span className="line-through text-muted-foreground/60">$228/year</span>{" "}
               <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                $99
+                $29
               </span>{" "}
-              — one payment, lifetime access. Normally $228/year.
+              — one payment, lifetime access. First 35 buyers only.
             </p>
 
             <p className="text-sm text-red-600 dark:text-red-400 font-semibold mb-8">
-              ⏰ This price disappears in 24 hours. Don&apos;t miss it.
+              ⏰ Today only. Only 35 spots. Price goes to $19/month at midnight.
             </p>
 
             {/* CTA Button */}
@@ -211,12 +211,12 @@ export default function LifetimePage() {
               href={STRIPE_LINK}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-10 py-5 text-lg font-bold text-primary-foreground shadow-xl hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              Get Lifetime Access — $99
+              Get Lifetime Access — $29
               <ArrowRight className="h-5 w-5" />
             </a>
 
             <p className="text-sm text-muted-foreground mt-4">
-              30-day money-back guarantee &middot; Secure Stripe checkout
+              Double-your-money-back guarantee &middot; Secure Stripe checkout
             </p>
 
             {/* Social Proof */}
@@ -251,17 +251,17 @@ export default function LifetimePage() {
                 </div>
               </div>
               <div className="rounded-xl bg-background border p-6 ring-2 ring-red-400 ring-offset-2">
-                <div className="text-3xl font-bold text-primary mb-1">$99</div>
+                <div className="text-3xl font-bold text-primary mb-1">$29</div>
                 <div className="text-sm text-muted-foreground">
                   One-time flash sale price{" "}
                   <span className="line-through text-muted-foreground/50">
-                    $199
+                    $228/year
                   </span>
                 </div>
               </div>
               <div className="rounded-xl bg-background border p-6">
                 <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                  6 weeks
+                  2 weeks
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Until you&apos;re in profit — forever
@@ -269,8 +269,8 @@ export default function LifetimePage() {
               </div>
             </div>
             <p className="text-lg text-muted-foreground mt-8">
-              The average Bento user saves $847/year. You pay $99 once. After
-              about 6 weeks, you&apos;re in profit forever.
+              The average Bento user saves $847/year. You pay $29 once. After
+              about 2 weeks, you&apos;re in profit forever.
             </p>
           </div>
         </div>
