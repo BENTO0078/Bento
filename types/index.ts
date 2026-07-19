@@ -315,6 +315,19 @@ export type ReferralUpdate = Partial<Omit<Referral, "id" | "created_at">>;
 export type AutomationLogUpdate = Partial<Omit<AutomationLog, "id" | "created_at">>;
 export type SavingsEventUpdate = Partial<Omit<SavingsEvent, "id" | "created_at">>;
 
+// ---- Analytics types ----
+
+export interface AnalyticsPageview {
+  id: string;
+  created_at: string;
+  path: string;
+  referrer: string | null;
+  user_agent: string | null;
+  ip_hash: string | null;
+}
+
+export type AnalyticsPageviewInsert = Omit<AnalyticsPageview, "id" | "created_at">;
+
 // ---- Database type (for Supabase client typing) ----
 
 export interface Database {
@@ -494,6 +507,12 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
+      };
+      analytics_pageviews: {
+        Row: AnalyticsPageview;
+        Insert: AnalyticsPageviewInsert;
+        Update: Partial<AnalyticsPageviewInsert>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

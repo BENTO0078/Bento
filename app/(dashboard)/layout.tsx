@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { UserMenu } from "@/components/dashboard/user-menu";
-import { DashboardShareButton } from "@/components/dashboard/share-button";
+import UserMenu from "@/components/dashboard/user-menu";
+import DashboardShareButton from "@/components/dashboard/share-button";
 import {
   LayoutDashboard,
   ClipboardList,
   Receipt,
   RotateCcw,
   ShieldCheck,
+  BarChart3,
   Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,11 @@ const navigation = [
     name: "Warranties",
     href: "/dashboard/warranties",
     icon: ShieldCheck,
+  },
+  {
+    name: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
   },
 ];
 
