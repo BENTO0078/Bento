@@ -53,9 +53,9 @@ export default async function MarketingLayout({
             {!isAuthenticated && (
               <Link
                 href="/lifetime"
-                className="text-sm font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                className="text-sm font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors animate-pulse"
               >
-                Lifetime Deal 🔥
+                Flash Sale ⚡ $99
               </Link>
             )}
           </nav>
