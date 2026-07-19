@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
 };
 
-const STRIPE_LINK = "https://buy.stripe.com/cNibJ07r8fBg10cX81ZS05";
+const STRIPE_LINK = "https://buy.stripe.com/6oU6G8vcfBgbEO1eq1ZS06";
 
 const features = [
   {
