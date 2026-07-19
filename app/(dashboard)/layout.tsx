@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import UserMenu from "@/components/dashboard/user-menu";
-import DashboardShareButton from "@/components/dashboard/share-button";
+import { UserMenu } from "@/components/dashboard/user-menu";
+import { DashboardShareButton } from "@/components/dashboard/share-button";
 import {
   LayoutDashboard,
   ClipboardList,
