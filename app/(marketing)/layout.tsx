@@ -39,6 +39,12 @@ export default async function MarketingLayout({
               Pricing
             </Link>
             <Link
+              href="/tools/bill-negotiator"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Free Tools
+            </Link>
+            <Link
               href="/blog"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
